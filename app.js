@@ -1,7 +1,7 @@
-import * as THREE from 'https://unpkg.com/three@0.154.0/build/three.module.js?module';
-import { GLTFLoader } from 'https://unpkg.com/three@0.154.0/examples/jsm/loaders/GLTFLoader.js?module';
-import { ARButton } from 'https://unpkg.com/three@0.154.0/examples/jsm/webxr/ARButton.js?module';
-
+// 替代 Skypack 的失效链接
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.154.0/examples/jsm/loaders/GLTFLoader.js';
+import { ARButton } from 'https://cdn.jsdelivr.net/npm/three@0.154.0/examples/jsm/webxr/ARButton.js';
 
 let camera, scene, renderer, controller, mixer;
 
@@ -27,7 +27,7 @@ function init() {
 
   // Load GLB Model with Animation
   const loader = new GLTFLoader();
-  loader.load('base_basic_shaded.glb', (gltf) => {
+  loader.load('model.glb', (gltf) => {
     const model = gltf.scene;
     model.scale.set(0.5, 0.5, 0.5);
     model.visible = false;
