@@ -18,13 +18,26 @@ export default function ARViewer() {
       script.type = 'module'
       document.head.appendChild(script)
     }
-    // 获取摄像头
+
+    // 优先尝试后置摄像头
     navigator.mediaDevices.getUserMedia({
       video: { facingMode: { exact: "environment" } }
     }).then(stream => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream
       }
+    }).catch(() => {
+      // 如果没有后置摄像头，降级为前置摄像头
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" }
+      }).then(stream => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+        }
+      }).catch(err => {
+        // 依然失败，提示用户
+        console.warn('无法访问摄像头:', err)
+      })
     })
   }, [])
 
