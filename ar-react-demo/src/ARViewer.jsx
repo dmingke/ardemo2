@@ -7,8 +7,8 @@ const MODEL_VIEWER_SCRIPT = 'https://unpkg.com/@google/model-viewer/dist/model-v
 export default function ARViewer() {
   const videoRef = useRef(null)
   const modelViewerRef = useRef(null)
-  // let longPressTimer = useRef(null)
-  // let isLongPress = false
+  let longPressTimer = useRef(null)
+  let isLongPress = useRef(false)
 
   useEffect(() => {
     // 动态加载 model-viewer 脚本
@@ -19,54 +19,56 @@ export default function ARViewer() {
       document.head.appendChild(script)
     }
     // 获取摄像头
-    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { exact: "environment" } }
+    }).then(stream => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream
       }
     })
   }, [])
 
-  // // 按压事件逻辑
-  // useEffect(() => {
-  //   const modelViewer = modelViewerRef.current
-  //   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-  //   if (!modelViewer || isIOS) return
+  // 按压事件逻辑
+  useEffect(() => {
+    const modelViewer = modelViewerRef.current
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    if (!modelViewer || isIOS) return
 
-  //   const changeModel = (modelName) => {
+    const changeModel = (modelName) => {
 
-  //       // console.log("changeModel", modelName)
-  //       modelViewer.setAttribute('src', `/${modelName}.glb`)
+        // console.log("changeModel", modelName)
+        modelViewer.setAttribute('src', `/${modelName}.glb`)
       
-  //   }
+    }
 
-  //   const handlePointerDown = () => {
-  //     // console.log("I pressed")
-  //     isLongPress = false
-  //     longPressTimer.current = setTimeout(() => {
-  //       isLongPress = true
-  //       changeModel('base_basic_shaded_run')
-  //     }, 500)
-  //   }
+    const handlePointerDown = () => {
+      // console.log("I pressed")
+      isLongPress.current = false
+      longPressTimer.current = setTimeout(() => {
+        isLongPress.current = true
+        changeModel('base_basic_shaded_run')
+      }, 500)
+    }
 
-  //   const handlePointerUp = () => {
-  //     // console.log("I up")
-  //     if (longPressTimer.current) clearTimeout(longPressTimer.current)
-  //     if (!isLongPress) {
-  //       console.log("base_basic_shaded_idle")
-  //       changeModel('base_basic_shaded_idle')
-  //     } else {
-  //       changeModel('base_basic_shaded')
-  //     }
-  //   }
+    const handlePointerUp = () => {
+      // console.log("I up")
+      if (longPressTimer.current) clearTimeout(longPressTimer.current)
+      if (!isLongPress.current) {
+        console.log("base_basic_shaded_idle")
+        changeModel('base_basic_shaded_idle')
+      } else {
+        changeModel('base_basic_shaded')
+      }
+    }
 
-  //   modelViewer.addEventListener('pointerdown', handlePointerDown)
-  //   modelViewer.addEventListener('pointerup', handlePointerUp)
+    modelViewer.addEventListener('pointerdown', handlePointerDown)
+    modelViewer.addEventListener('pointerup', handlePointerUp)
 
-  //   return () => {
-  //     modelViewer.removeEventListener('pointerdown', handlePointerDown)
-  //     modelViewer.removeEventListener('pointerup', handlePointerUp)
-  //   }
-  // }, [])
+    return () => {
+      modelViewer.removeEventListener('pointerdown', handlePointerDown)
+      modelViewer.removeEventListener('pointerup', handlePointerUp)
+    }
+  }, [])
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden' }}>
@@ -89,7 +91,7 @@ export default function ARViewer() {
         ref={modelViewerRef}
         id="arModel"
         src="/base_basic_shaded.glb"
-        ios-src='/base_basic_pbr.usdz'
+        ios-src='/base_basic_shaded_idle.usdz'
         style={{
           position: 'absolute',
           top: 0,
@@ -102,7 +104,7 @@ export default function ARViewer() {
         camera-controls
         ar
         ar-modes="webxr scene-viewer quick-look"
-
+        autoPlay
         shadow-intensity="1"
         interaction-prompt="none"
         background-color="transparent"
